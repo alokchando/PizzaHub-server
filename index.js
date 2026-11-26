@@ -32,7 +32,15 @@ app.get('/', (req, res) => {
 
 
 
-
+// Get all users
+app.get('/users', async (req, res) => {
+  try {
+    const result = await users.find({}).toArray();
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: 'Server error' });
+  }
+});
 
 
 // Start server
