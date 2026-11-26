@@ -1,51 +1,45 @@
-
-import express from 'express';
-import cors from 'cors';
-import { MongoClient } from 'mongodb';
-import 'dotenv/config';
+import express from "express";
+import cors from "cors";
+import { MongoClient } from "mongodb";
+import "dotenv/config";
 
 const app = express();
 const port = 3001;
 
 // Middleware
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 // MongoDB connection
 const client = new MongoClient(process.env.MONGO_URI);
 
 await client.connect();
-console.log('Successfully connected to MongoDB!');
+console.log("Successfully connected to MongoDB!");
 
 // Database and collection
-const dataBase = client.db('pizzahubdb');
-const users = dataBase.collection('user');
-const menuItemsCollection = dataBase.collection('allItems');
-
-
-
+const dataBase = client.db("pizzahubdb");
+const users = dataBase.collection("user");
+const menuItemsCollection = dataBase.collection("allItems");
 
 // Home route
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 
-
-
-
 // Get all users
-app.get('/users', async (req, res) => {
+app.get("/users", async (req, res) => {
   try {
     const result = await users.find({}).toArray();
     res.send(result);
   } catch (error) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: "Server error" });
   }
 });
-
 
 // Add Menu Item
 app.post("/menu-items", async (req, res) => {
@@ -72,7 +66,6 @@ app.post("/menu-items", async (req, res) => {
       message: "Menu item submitted successfully",
       insertedId: result.insertedId,
     });
-
   } catch (error) {
     console.error(error);
 
@@ -82,6 +75,11 @@ app.post("/menu-items", async (req, res) => {
   }
 });
 
+// Get all menu items
+app.get("/menu-items", async (req, res) => {
+  const result = await menuItems.find().toArray();
+  res.send(result);
+});
 
 // Start server
 app.listen(port, () => {
