@@ -99,6 +99,45 @@ app.delete("/menu-items/:id", async (req, res) => {
 });
 
 
+// Approve or Reject Menu Item
+app.patch("/menu-items/:id/status", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Only allow approved or rejected
+    if (!["approved", "rejected"].includes(status)) {
+      return res.status(400).send({
+        message: "Invalid status",
+      });
+    }
+
+    const result = await menuItemsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: status,
+        },
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send({
+        message: "Menu item not found",
+      });
+    }
+
+    res.send({
+      success: true,
+      message: `Menu item ${status} successfully`,
+    });
+
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to update menu item",
+    });
+  }
+});
 
 
 // Start server
