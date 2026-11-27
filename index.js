@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import "dotenv/config";
 
 const app = express();
@@ -77,9 +77,29 @@ app.post("/menu-items", async (req, res) => {
 
 // Get all menu items
 app.get("/menu-items", async (req, res) => {
-  const result = await menuItems.find().toArray();
+  const result = await menuItemsCollection.find().toArray();
   res.send(result);
 });
+
+// Delete menu item
+app.delete("/menu-items/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const filter = ObjectId.isValid(id)
+      ? { _id: new ObjectId(id) }
+      : { _id: id };
+
+    const result = await menuItemsCollection.deleteOne(filter);
+
+    res.send({ message: "Menu item deleted successfully" });
+  } catch (error) {
+    res.status(500).send({ message: "Failed to delete menu item" });
+  }
+});
+
+
+
 
 // Start server
 app.listen(port, () => {
