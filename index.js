@@ -139,6 +139,39 @@ app.patch("/menu-items/:id/status", async (req, res) => {
   }
 });
 
+// Activate / Deactivate Menu Item
+app.patch("/menu-items/:id/active", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    if (typeof isActive !== "boolean") {
+      return res.status(400).send({
+        message: "isActive must be true or false",
+      });
+    }
+
+    const result = await menuItemsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          isActive: isActive,
+        },
+      }
+    );
+
+  
+    res.send({
+      success: true,
+      message: `Menu item ${isActive ? "activated" : "deactivated"} successfully`,
+    });
+
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to update menu item",
+    });
+  }
+});
 
 // Start server
 app.listen(port, () => {
